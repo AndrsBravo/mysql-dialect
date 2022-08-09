@@ -138,9 +138,19 @@ class Query {
         return new From(this.#query);
 
     }
-    INSERT() { }
+    INSERT(tableName,...fields) {
+
+        if(!tableName) {Error("tableName not provided"); return;}
+        if (!fields) {Error("fields not provided"); return;}
+        this.#query = `INSERT INTO ${tableName} (${fields.join(",")}) VALUES (${ ",?".repeat(fields.length).substring(1) })`;
+        return this.#query;
+    }
+
     UPDATE() { }
     DELETE() { }
+    get(){
+        return this.#query;
+    }
 }
 
 function query() {
