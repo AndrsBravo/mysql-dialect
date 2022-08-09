@@ -147,7 +147,10 @@ class Query {
     }
 
     UPDATE() { }
-    DELETE() { }
+    get DELETE() { 
+        this.#query = " DELETE ";
+        return new From(this.#query);
+    }
     get(){
         return this.#query;
     }
