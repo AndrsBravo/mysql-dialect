@@ -89,14 +89,14 @@ class Operator {
         this.#query = this.#query + ` ALL (${sub_query})`;
         return new OperatorCombiner(this.#query);
     }
-    
-    get BETWEEN(){ 
+
+    get BETWEEN() {
 
         this.#query = this.#query + ` BETWEEN ? AND ?`;
         return new OperatorCombiner(this.#query);
 
     }
-    get NOTBETWEEN(){ 
+    get NOTBETWEEN() {
 
         this.#query = this.#query + ` NOT BETWEEN ? AND ?`;
         return new OperatorCombiner(this.#query);
@@ -143,4 +143,8 @@ class Query {
     DELETE() { }
 }
 
-module.exports = new Query();
+function query() {
+    return new Query();
+}
+
+module.exports = query;
