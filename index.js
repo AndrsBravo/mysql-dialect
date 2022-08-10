@@ -22,7 +22,7 @@ class OperatorCombiner {
         this.#query = this.#query + " OR ";
         return new Operator(this.#query);
     }
-    get() { return this.#query; }
+    get() { return this.#query.trim(); }
 }
 class Operator {
     #query;
@@ -62,21 +62,21 @@ class Operator {
 
     IN(...values) {
 
-        if (!values) { Error("Not values provided"); return; }
+        if (!values) { throw Error("Not values provided"); }
 
         this.#query = this.#query + ` IN (${values.join(", ")})`;
         return new OperatorCombiner(this.#query);
     }
     NOTIN(...values) {
 
-        if (!values) { Error("Not values provided"); return; }
+        if (!values) { throw Error("Not values provided"); }
 
         this.#query = this.#query + ` NOT IN (${values.join(", ")})`;
         return new OperatorCombiner(this.#query);
     }
     ANY(sub_query) {
 
-        if (!sub_query) { Error("Not sub query provided"); return; }
+        if (!sub_query) { throw Error("Not sub query provided"); }
 
         this.#query = this.#query + ` ANY (${sub_query})`;
         return new OperatorCombiner(this.#query);
@@ -84,7 +84,7 @@ class Operator {
 
     ALL(sub_query) {
 
-        if (!sub_query) { Error("Not sub query provided"); return; }
+        if (!sub_query) { throw Error("Not sub query provided"); }
 
         this.#query = this.#query + ` ALL (${sub_query})`;
         return new OperatorCombiner(this.#query);
@@ -107,12 +107,14 @@ class Operator {
 class WhereStatements {
     #query;
     constructor(query) { this.#query = query; }
-    get() { return this.#query; }
+    get() { return this.#query.trim(); }
     WHERE(field) {
+        if (!field) { throw Error("field was not provided"); }
         this.#query = this.#query + ` WHERE ${field}`
         return new Operator(this.#query);
     }
     WHERENOT(field) {
+        if (!field) { throw Error("field was not provided"); }
         this.#query = this.#query + ` WHERE NOT ${field}`
         return new Operator(this.#query);
     }
@@ -120,39 +122,50 @@ class WhereStatements {
 class From {
     #query;
     constructor(query) {
-        this.#query = query + " FROM";
+        if(!query) throw Error("query was not provided");
+        this.#query = query + " FROM ";
     }
     FROM(tableName) {
-        if (!tableName) { Error("Table Name not provided"); return; }
+        if (!tableName) { throw Error("Table Name not provided"); }
         this.#query = this.#query + ` ${tableName}`;
         return new WhereStatements(this.#query);
     }
 }
+
 class Query {
     #query;
     constructor() { }
     SELECT(...fields) {
 
-        if (!fields) { Error("not fields provided"); return };
+        if (!fields) { throw Error("not fields provided"); return };
         this.#query = `SELECT ${fields.join(", ")}`;
         return new From(this.#query);
 
     }
-    INSERT(tableName,...fields) {
+    INSERT(tableName, ...fields) {
 
-        if(!tableName) {Error("tableName not provided"); return;}
-        if (!fields) {Error("fields not provided"); return;}
-        this.#query = `INSERT INTO ${tableName} (${fields.join(",")}) VALUES (${ ",?".repeat(fields.length).substring(1) })`;
+        if (!tableName) { throw Error("tableName not provided"); }
+        if (!fields) { throw Error("fields not provided"); }
+        this.#query = `INSERT INTO ${tableName} (${fields.join(",")}) VALUES (${",?".repeat(fields.length).substring(1)})`;
         return this.#query;
     }
 
-    UPDATE() { }
-    get DELETE() { 
-        this.#query = " DELETE ";
+    UPDATE(tableName,...fields) {
+        if(!tableName) throw Error("tableName was not provided");
+        if(!fields) throw Error("fields were not provided");
+        let flds = fields.map(field => `${field} = ?` );
+        this.#query = `UPDATE ${tableName} SET (${flds.join(", ")})`;
+        
+        return new WhereStatements(this.#query);
+
+     }
+
+    get DELETE() {
+        this.#query = "DELETE ";
         return new From(this.#query);
     }
-    get(){
-        return this.#query;
+    get() {
+        return this.#query.trim();
     }
 }
 
