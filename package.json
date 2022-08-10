@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/AndrsBravo/mysql-dialect/issues"
   },
-  "homepage": "https://github.com/AndrsBravo/mysql-dialect#readme"
+  "homepage": "https://github.com/AndrsBravo/mysql-dialect#readme",
+  "devDependencies": {
+    "jest": "^28.1.3"
+  }
 }
