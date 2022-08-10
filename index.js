@@ -137,7 +137,7 @@ class Query {
     constructor() { }
     SELECT(...fields) {
 
-        if (!fields) { throw Error("not fields provided"); return };
+        if (!fields) { throw Error("not fields provided"); };
         this.#query = `SELECT ${fields.join(", ")}`;
         return new From(this.#query);
 
@@ -164,13 +164,42 @@ class Query {
         this.#query = "DELETE ";
         return new From(this.#query);
     }
-    get() {
-        return this.#query.trim();
-    }
 }
 
 function query() {
     return new Query();
 }
 
-module.exports = query;
+function SELECT(...fields) {
+
+    if (!fields) { throw Error("not fields provided"); return };
+    this.query = `SELECT ${fields.join(", ")}`;
+    return new From(this.query);
+
+}
+
+function INSERT(tableName, ...fields) {
+
+    if (!tableName) { throw Error("tableName not provided"); }
+    if (!fields) { throw Error("fields not provided"); }
+    this.query = `INSERT INTO ${tableName} (${fields.join(",")}) VALUES (${",?".repeat(fields.length).substring(1)})`;
+    return this.query;
+}
+
+function UPDATE(tableName,...fields) {
+    if(!tableName) throw Error("tableName was not provided");
+    if(!fields) throw Error("fields were not provided");
+    let flds = fields.map(field => `${field} = ?` );
+    this.query = `UPDATE ${tableName} SET (${flds.join(", ")})`;
+    
+    return new WhereStatements(this.query);
+
+ }
+
+ function DELETE() {
+    this.query = "DELETE ";
+    return new From(this.query);
+}
+
+
+module.exports = {query,DELETE:DELETE(),UPDATE,INSERT,SELECT};
