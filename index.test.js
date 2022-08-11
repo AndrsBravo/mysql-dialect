@@ -11,13 +11,13 @@ describe("Declaration", () => {
 
 describe("SELECT Statement", () => {
 
-    it("Not Function's Param exception managed", () => {
+    it("Not Function's Param exception throw", () => {
         expect(() => query.SELECT()).toThrow();
     });
     it("return FROM reference", () => { expect(() => query.SELECT("*")).toBeDefined() });
-    it("FROM Not Function's Param exception managed", () => { expect(() => query.SELECT("*").FROM()).toThrow() });
+    it("FROM Not Function's Param exception throw", () => { expect(() => query.SELECT("*").FROM()).toThrow() });
     it("Asterisk select all query return", () => { expect(query.SELECT("*").FROM("users").get()).toBe("SELECT * FROM users") });
-    it("WHERE Not Function's Param exception managed", () => { () => expect(query.SELECT("*").FROM("users").WHERE()).toThrow() });
+    it("WHERE Not Function's Param exception throw", () => { () => expect(query.SELECT("*").FROM("users").WHERE()).toThrow() });
     it("'WHERE TRUE' true statement", () => {
         expect(query.SELECT("*").FROM("users").WHERETRUE.get()).toBe("SELECT * FROM users WHERE TRUE")
     });
@@ -55,7 +55,7 @@ describe("SELECT Statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").NOTIN("'name1'", "'name2'").get()).toBe("SELECT * FROM users WHERE name NOT IN ('name1', 'name2')")
     });
 
-    it("AND Not Function's Param exception managed", () => {
+    it("AND Not Function's Param exception throw", () => {
         expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.AND()).toThrow();
     });
     it("return AND reference", () => {
@@ -66,7 +66,7 @@ describe("SELECT Statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").equ.AND("lastName").equ.get()).toBe("SELECT * FROM users WHERE name = ? AND lastName = ?");
     });
 
-    it("AND NOT, Not Function's Param exception managed", () => {
+    it("AND NOT, Not Function's Param exception throw", () => {
         expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANDNOT()).toThrow();
     });
     it("return ANDNOT reference", () => {
@@ -77,7 +77,7 @@ describe("SELECT Statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").equ.ANDNOT("lastName").equ.get()).toBe("SELECT * FROM users WHERE name = ? AND NOT lastName = ?");
     });
 
-    it("OR, Not Function's Param exception managed", () => {
+    it("OR, Not Function's Param exception throw", () => {
         expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.OR()).toThrow();
     });
     it("return OR reference", () => {
@@ -88,12 +88,8 @@ describe("SELECT Statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").equ.OR("lastName").equ.get()).toBe("SELECT * FROM users WHERE name = ? OR lastName = ?");
     });
 
-    it("WHERE ALL, Not Function's Param exception managed", () => {
+    it("WHERE ALL, Not Function's Param exception throw", () => {
         expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ALL()).toThrow();
-    });
-
-    it("Return ALL reference", () => {
-        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ALL("")).toBeDefined();
     });
 
     it("Return ALL reference", () => {
@@ -103,26 +99,37 @@ describe("SELECT Statement", () => {
     it("WHERE field = ALL (sub-query)", () => {
         const session = query.SELECT("userid").FROM("sessions").WHERE("name").equ.get();
         expect(query.SELECT("*").FROM("users").WHERE("userid").equ.ALL(session).get())
-        .toBe("SELECT * FROM users WHERE userid = ALL (SELECT userid FROM sessions WHERE name = ?)");
+            .toBe("SELECT * FROM users WHERE userid = ALL (SELECT userid FROM sessions WHERE name = ?)");
     });
 
-    it("WHERE ANY, Not Function's Param exception managed", () => {
+    it("WHERE ANY, Not Function's Param exception throw", () => {
         expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY()).toThrow();
+    });    
+
+    it("Return ANY reference", () => {
+        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY("")).toBeDefined();
+    });
+    
+    it("WHERE field = ANY (sub-query)", () => {
+        const session = query.SELECT("userid").FROM("sessions").WHERE("name").equ.get();
+        expect(query.SELECT("*").FROM("users").WHERE("userid").equ.ANY(session).get())
+            .toBe("SELECT * FROM users WHERE userid = ANY (SELECT userid FROM sessions WHERE name = ?)");
     });
 
 });
 
 describe("SELECT ALL Statement", () => {
-    it("SELECT ALL, Not Function's Param exception managed", () => {
+    it("SELECT ALL, Not Function's Param exception throw", () => {
         expect(() => query.SELECTALL()).toThrow();
     });
     it("SELECT ALL, return a From", () => {
         expect(() => query.SELECTALL("name")).toBeDefined();
     });
-    it("SELECT ALL FROM, Not Function's Param exception managed", () => {
+    it("SELECT ALL FROM, Not Function's Param exception throw", () => {
         expect(() => query.SELECTALL("name").FROM()).toThrow();
     });
     it("'SELECT ALL' for all values of a column, TRUE combine", () => {
         expect(query.SELECTALL("name").FROM("users").WHERETRUE.get()).toBe("SELECT ALL name FROM users WHERE TRUE")
     });
 });
+
