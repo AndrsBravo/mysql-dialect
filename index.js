@@ -180,9 +180,11 @@ function UPDATE(tableName, ...fields) {
     return new WhereStatements(this.query);
 }
 
-function DELETE() {
-    this.query = "DELETE ";
+function DELETE(tableName) {
+    if(!tableName) throw new Error('tableName was not provided');
+
+    this.query = "DELETE";
     return new From(this.query);
 }
 
-module.exports = { DELETE: DELETE(), UPDATE, INSERT, SELECT, SELECTALL };
+module.exports = { DELETE: DELETE, UPDATE, INSERT, SELECT, SELECTALL };
