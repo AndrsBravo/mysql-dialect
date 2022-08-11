@@ -141,3 +141,23 @@ describe("INSERT Statement", () => {
         expect(query.INSERT("users","userName","email","password")).toBe("INSERT INTO users (userName,email,password) VALUES (?,?,?)")
      });
 });
+
+describe("DELETE Statement",()=>{   
+
+    test("DELETE, Not Function's Param exception throw",()=>{
+        expect(()=>query.DELETE()).toThrow()
+    });   
+
+    test("DELETE, return a WHERE instance",()=>{
+        expect(query.DELETE("users")).toBeDefined();
+    });
+
+    test("'DELETE FROM table', statement",()=>{
+        expect(query.DELETE("users").get()).toBe("DELETE FROM users");
+    });
+
+    test("'DELETE FROM table WHERE', delete with condition statement",()=>{
+        expect(query.DELETE("users").WHERE("email").equ.get()).toBe("DELETE FROM users WHERE email = ?");
+    });   
+
+});
