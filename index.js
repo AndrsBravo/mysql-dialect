@@ -184,7 +184,7 @@ function DELETE(tableName) {
     if(!tableName) throw new Error('tableName was not provided');
 
     this.query = "DELETE";
-    return new From(this.query);
+    return new From(this.query).FROM(tableName);
 }
 
 module.exports = { DELETE: DELETE, UPDATE, INSERT, SELECT, SELECTALL };
