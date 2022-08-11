@@ -133,3 +133,11 @@ describe("SELECT ALL Statement", () => {
     });
 });
 
+describe("INSERT Statement", () => {
+    test("INSERT, Not Function's Param exception throw", () => {
+        expect(()=>query.INSERT()).toThrow()
+     });
+    test("'INSERT INTO' Statement", () => {
+        expect(query.INSERT("users","userName","email","password")).toBe("INSERT INTO users (userName,email,password) VALUES (?,?,?)")
+     });
+});
