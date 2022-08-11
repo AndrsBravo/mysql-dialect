@@ -104,12 +104,12 @@ describe("SELECT Statement", () => {
 
     it("WHERE ANY, Not Function's Param exception throw", () => {
         expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY()).toThrow();
-    });    
+    });
 
     it("Return ANY reference", () => {
         expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY("")).toBeDefined();
     });
-    
+
     it("WHERE field = ANY (sub-query)", () => {
         const session = query.SELECT("userid").FROM("sessions").WHERE("name").equ.get();
         expect(query.SELECT("*").FROM("users").WHERE("userid").equ.ANY(session).get())
@@ -135,29 +135,48 @@ describe("SELECT ALL Statement", () => {
 
 describe("INSERT Statement", () => {
     test("INSERT, Not Function's Param exception throw", () => {
-        expect(()=>query.INSERT()).toThrow()
-     });
+        expect(() => query.INSERT()).toThrow()
+    });
     test("'INSERT INTO' Statement", () => {
-        expect(query.INSERT("users","userName","email","password")).toBe("INSERT INTO users (userName,email,password) VALUES (?,?,?)")
-     });
+        expect(query.INSERT("users", "userName", "email", "password")).toBe("INSERT INTO users (userName,email,password) VALUES (?,?,?)")
+    });
 });
 
-describe("DELETE Statement",()=>{   
+describe("DELETE Statement", () => {
 
-    test("DELETE, Not Function's Param exception throw",()=>{
-        expect(()=>query.DELETE()).toThrow()
-    });   
+    test("DELETE, Not Function's Param exception throw", () => {
+        expect(() => query.DELETE()).toThrow()
+    });
 
-    test("DELETE, return a WHERE instance",()=>{
+    test("DELETE, return a WHERE instance", () => {
         expect(query.DELETE("users")).toBeDefined();
     });
 
-    test("'DELETE FROM table', statement",()=>{
+    test("'DELETE FROM table', statement", () => {
         expect(query.DELETE("users").get()).toBe("DELETE FROM users");
     });
 
-    test("'DELETE FROM table WHERE', delete with condition statement",()=>{
+    test("'DELETE FROM table WHERE', delete with condition statement", () => {
         expect(query.DELETE("users").WHERE("email").equ.get()).toBe("DELETE FROM users WHERE email = ?");
-    });   
+    });
 
 });
+
+describe("UPDATE statement", () => {
+    test("UPDATE, Not Function's Param exception throw", () => {
+        expect(() => query.UPDATE()).toThrow()
+    });
+
+    test("UPDATE, return WHERE statement", () => {
+        expect(() => query.UPDATE("users", "email", "userName", "password")).toBeDefined()
+    });
+
+    test("UPDATE WHERE, Not Function's Param exception throw", () => {
+        expect(() => query.UPDATE("users", "email", "userName", "password").WHERE()).toThrow()
+    });
+
+    test("'UPDATE table SET () WHERE condition', UPDATE Statement", () => {
+        expect(query.UPDATE("users", "email", "userName", "password").WHERE("userid").equ.get())
+            .toBe("UPDATE users SET (email = ?, userName = ?, password = ?) WHERE userid = ?")
+    });
+})
