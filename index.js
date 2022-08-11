@@ -4,29 +4,36 @@ class OperatorCombiner {
     constructor(query) { this.#query = query; }
     AND(condition = null) {
 
+        if (!condition) throw new Error("Not condition provided");
+
         let and = " AND ";
-        if (condition) and = and + condition;
+        and = and + condition;
         this.#query = this.#query + and;
         return new Operator(this.#query);
     }
     ANDNOT(condition = null) {
 
+        if (!condition) throw new Error("Not condition provided");
         let andnot = " AND NOT ";
-        if (condition) andnot = andnot + condition;
+        andnot = andnot + condition;
         this.#query = this.#query + andnot;
         return new Operator(this.#query);
     }
     OR(condition = null) {
+        if (!condition) throw new Error("Not condition provided");
         let or = " OR ";
-        if (condition) or = or + condition;
-        this.#query = this.#query + " OR ";
+        or = or + condition;
+        this.#query = this.#query + or;
         return new Operator(this.#query);
     }
     ANY(sub_query) {
 
         if (!sub_query) { throw new Error("Not sub query provided"); }
 
-        this.#query = this.#query + ` ANY (${sub_query})`;
+        if(this.#query.endsWith("?"))  {this.#query = this.#query.substring(0,this.#query.length-1);}
+
+        this.#query = this.#query + `ANY (${sub_query})`;
+
         return this;
     }
 
@@ -34,7 +41,9 @@ class OperatorCombiner {
 
         if (!sub_query) { throw new Error("Not sub query provided"); }
 
-        this.#query = this.#query + ` ALL (${sub_query})`;
+        if(this.#query.endsWith("?"))  {this.#query = this.#query.substring(0,this.#query.length - 1);}
+
+        this.#query = this.#query + `ALL (${sub_query})`;
         return this;
     }
     get() { return this.#query.trim(); }
@@ -42,6 +51,7 @@ class OperatorCombiner {
 class Operator {
     #query;
     constructor(query) { this.#query = query; }
+    get() { return this.#query.trim(); }
     get equ() {
         this.#query = this.#query + " = ?";
         return new OperatorCombiner(this.#query);
@@ -118,6 +128,10 @@ class WhereStatements {
         this.#query = this.#query + ` WHERE NOT ${field}`
         return new Operator(this.#query);
     }
+    get WHERETRUE() {
+        this.#query = this.#query + " WHERE TRUE ";
+        return new Operator(this.#query);
+    }
 }
 class From {
     #query;
@@ -134,8 +148,16 @@ class From {
 
 function SELECT(...fields) {
 
-    if (fields.length < 1) { throw new Error("not fields provided"); };
+    if (fields.length < 1) { throw new Error("not fields provided"); }
     this.query = `SELECT ${fields.join(", ")}`;
+    return new From(this.query);
+
+}
+
+function SELECTALL(...fields) {
+
+    if (fields.length < 1) { throw new Error("not fields provided"); }
+    this.query = `SELECT ALL ${fields.join(", ")}`;
     return new From(this.query);
 
 }
@@ -155,7 +177,7 @@ function UPDATE(tableName, ...fields) {
     let flds = fields.map(field => `${field} = ?`);
     this.query = `UPDATE ${tableName} SET (${flds.join(", ")})`;
 
-    return new WhereStatements(this.query);   
+    return new WhereStatements(this.query);
 }
 
 function DELETE() {
@@ -163,4 +185,4 @@ function DELETE() {
     return new From(this.query);
 }
 
-module.exports = { DELETE: DELETE(), UPDATE, INSERT, SELECT };
+module.exports = { DELETE: DELETE(), UPDATE, INSERT, SELECT, SELECTALL };
