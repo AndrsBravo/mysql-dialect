@@ -80,11 +80,6 @@ class Operator {
         this.#query = this.#query + " LIKE ? ";
         return new OperatorCombiner(this.#query);
     }
-    get TRUE() {
-        this.#query = this.#query + " TRUE ";
-        return this;
-    }
-
     IN(...values) {
 
         if (!values) { throw new Error("Not values provided"); }
