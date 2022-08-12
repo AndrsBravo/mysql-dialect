@@ -21,6 +21,9 @@ describe("SELECT Statement", () => {
     it("'WHERE TRUE' true statement", () => {
         expect(query.SELECT("*").FROM("users").WHERETRUE.get()).toBe("SELECT * FROM users WHERE TRUE")
     });
+    it("'WHERE NOT field = ?' equality statement", () => {
+        expect(query.SELECT("*").FROM("users").WHERENOT("name").equ.get()).toBe("SELECT * FROM users WHERE NOT name = ?")
+    });
     it("'WHERE field = ?' equality statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").equ.get()).toBe("SELECT * FROM users WHERE name = ?")
     });
