@@ -15,13 +15,16 @@ describe("SELECT Statement", () => {
         expect(() => query.SELECT()).toThrow();
     });
     it("return FROM reference", () => { expect(() => query.SELECT("*")).toBeDefined() });
-    it("FROM Not Function's Param exception throw", () => { expect(() => query.SELECT("*").FROM()).toThrow() });
+    it("FROM Not Function's Param exception throw", () => { 
+        expect(() => query.SELECT("*").FROM()).toThrow(); 
+    });
     it("Asterisk select all query return", () => { expect(query.SELECT("*").FROM("users").get()).toBe("SELECT * FROM users") });
     it("WHERE Not Function's Param exception throw", () => { () => expect(query.SELECT("*").FROM("users").WHERE()).toThrow() });
     it("'WHERE TRUE' true statement", () => {
         expect(query.SELECT("*").FROM("users").WHERETRUE.get()).toBe("SELECT * FROM users WHERE TRUE")
     });
     it("'WHERE NOT field = ?' equality statement", () => {
+        expect(()=>query.SELECT("*").FROM("users").WHERENOT()).toThrow();
         expect(query.SELECT("*").FROM("users").WHERENOT("name").equ.get()).toBe("SELECT * FROM users WHERE NOT name = ?")
     });
     it("'WHERE field = ?' equality statement", () => {
@@ -52,9 +55,11 @@ describe("SELECT Statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").NOTBETWEEN.get()).toBe("SELECT * FROM users WHERE name NOT BETWEEN ? AND ?")
     });
     it("'WHERE field IN ('name1', 'name2')' like operator statement", () => {
+        expect(()=>query.SELECT("*").FROM("users").WHERE("name").IN()).toThrow();
         expect(query.SELECT("*").FROM("users").WHERE("name").IN("'name1'", "'name2'").get()).toBe("SELECT * FROM users WHERE name IN ('name1', 'name2')")
     });
     it("'WHERE field NOT IN ('name1', 'name2')' like operator statement", () => {
+        expect(()=>query.SELECT("*").FROM("users").WHERE("name").NOTIN()).toThrow();
         expect(query.SELECT("*").FROM("users").WHERE("name").NOTIN("'name1'", "'name2'").get()).toBe("SELECT * FROM users WHERE name NOT IN ('name1', 'name2')")
     });
 
@@ -92,7 +97,7 @@ describe("SELECT Statement", () => {
     });
 
     it("WHERE ALL, Not Function's Param exception throw", () => {
-        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ALL()).toThrow();
+        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ALL()).toThrow(); 
     });
 
     it("Return ALL reference", () => {
@@ -106,7 +111,8 @@ describe("SELECT Statement", () => {
     });
 
     it("WHERE ANY, Not Function's Param exception throw", () => {
-        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY()).toThrow();
+        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY()).toThrow();        
+        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY()).toBeTruthy();
     });
 
     it("Return ANY reference", () => {
@@ -139,6 +145,8 @@ describe("SELECT ALL Statement", () => {
 describe("INSERT Statement", () => {
     test("INSERT, Not Function's Param exception throw", () => {
         expect(() => query.INSERT()).toThrow()
+        expect(() => query.INSERT("users")).toThrow()
+        expect(() => query.INSERT(null,"userName","email")).toThrow()
     });
     test("'INSERT INTO' Statement", () => {
         expect(query.INSERT("users", "userName", "email", "password")).toBe("INSERT INTO users (userName,email,password) VALUES (?,?,?)")
@@ -168,6 +176,8 @@ describe("DELETE Statement", () => {
 describe("UPDATE statement", () => {
     test("UPDATE, Not Function's Param exception throw", () => {
         expect(() => query.UPDATE()).toThrow()
+        expect(() => query.UPDATE(null,"unserName","email")).toThrow()
+        expect(() => query.UPDATE("tableName")).toThrow()
     });
 
     test("UPDATE, return WHERE statement", () => {

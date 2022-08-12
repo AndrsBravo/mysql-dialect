@@ -30,20 +30,20 @@ class OperatorCombiner {
 
         if (!sub_query) { throw new Error("Not sub query provided"); }
 
-        if(this.#query.endsWith("?"))  {this.#query = this.#query.substring(0,this.#query.length-1);}
+       // if (this.#query.endsWith("?")) { this.#query = this.#query.substring(0, this.#query.length - 1); }
 
-        this.#query = this.#query + `ANY (${sub_query})`;
+        this.#query = this.#query.substring(0, this.#query.length - 1) + `ANY (${sub_query})`;
 
         return this;
     }
 
-    ALL(sub_query) {
+    ALL(sub_query) {      
 
         if (!sub_query) { throw new Error("Not sub query provided"); }
 
-        if(this.#query.endsWith("?"))  {this.#query = this.#query.substring(0,this.#query.length - 1);}
+       // this.#query =  this.#query.endsWith("?") ? this.#query.substring(0, this.#query.length - 1):  this.#query  ; 
 
-        this.#query = this.#query + `ALL (${sub_query})`;
+        this.#query = this.#query.substring(0, this.#query.length - 1) + `ALL (${sub_query})`;
         return this;
     }
     get() { return this.#query.trim(); }
@@ -82,14 +82,14 @@ class Operator {
     }
     IN(...values) {
 
-        if (!values) { throw new Error("Not values provided"); }
+        if (values.length < 1) { throw new Error("Not values provided"); }
 
         this.#query = this.#query + ` IN (${values.join(", ")})`;
         return new OperatorCombiner(this.#query);
     }
     NOTIN(...values) {
 
-        if (!values) { throw new Error("Not values provided"); }
+        if (values.length < 1) { throw new Error("Not values provided"); }
 
         this.#query = this.#query + ` NOT IN (${values.join(", ")})`;
         return new OperatorCombiner(this.#query);
@@ -131,7 +131,7 @@ class WhereStatements {
 class From {
     #query;
     constructor(query) {
-        if (!query) throw new Error("query was not provided");
+        //if (!query) throw new Error("query was not provided");
         this.#query = query + " FROM ";
     }
     FROM(tableName) {
@@ -157,18 +157,17 @@ function SELECTALL(...fields) {
 
 }
 
-function INSERT(tableName, ...fields) {
+function INSERT(tableName=null, ...fields) {
 
-    if (!tableName) { throw new Error("tableName not provided"); }
-    if (!fields) { throw new Error("fields not provided"); }
+    if (fields.length < 1) { throw new Error("fields not provided"); }
+    if (!tableName) { throw new Error("tableName not provided"); }   
     this.query = `INSERT INTO ${tableName} (${fields.join(",")}) VALUES (${",?".repeat(fields.length).substring(1)})`;
     return this.query;
 }
 
 function UPDATE(tableName, ...fields) {
-
     if (!tableName) throw new Error("tableName was not provided");
-    if (!fields) throw new Error("fields were not provided");
+    if (fields.length < 1) throw new Error("fields were not provided");
     let flds = fields.map(field => `${field} = ?`);
     this.query = `UPDATE ${tableName} SET (${flds.join(", ")})`;
 
@@ -176,7 +175,7 @@ function UPDATE(tableName, ...fields) {
 }
 
 function DELETE(tableName) {
-    if(!tableName) throw new Error('tableName was not provided');
+    if (!tableName) throw new Error('tableName was not provided');
 
     this.query = "DELETE";
     return new From(this.query).FROM(tableName);
