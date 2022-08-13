@@ -30,18 +30,18 @@ class OperatorCombiner {
 
         if (!sub_query) { throw new Error("Not sub query provided"); }
 
-       // if (this.#query.endsWith("?")) { this.#query = this.#query.substring(0, this.#query.length - 1); }
+        // if (this.#query.endsWith("?")) { this.#query = this.#query.substring(0, this.#query.length - 1); }
 
         this.#query = this.#query.substring(0, this.#query.length - 1) + `ANY (${sub_query})`;
 
         return this;
     }
 
-    ALL(sub_query) {      
+    ALL(sub_query) {
 
         if (!sub_query) { throw new Error("Not sub query provided"); }
 
-       // this.#query =  this.#query.endsWith("?") ? this.#query.substring(0, this.#query.length - 1):  this.#query  ; 
+        // this.#query =  this.#query.endsWith("?") ? this.#query.substring(0, this.#query.length - 1):  this.#query  ; 
 
         this.#query = this.#query.substring(0, this.#query.length - 1) + `ALL (${sub_query})`;
         return this;
@@ -110,22 +110,62 @@ class Operator {
 
 }
 class WhereStatements {
-    #query;
-    constructor(query) { this.#query = query; }
-    get() { return this.#query.trim(); }
+    query;
+    constructor(query) { this.query = query; }
+    get() { return this.query.trim(); }
     WHERE(field) {
         if (!field) { throw new Error("field was not provided"); }
-        this.#query = this.#query + ` WHERE ${field}`
-        return new Operator(this.#query);
+        this.query = this.query + ` WHERE ${field}`
+        return new Operator(this.query);
     }
     WHERENOT(field) {
         if (!field) { throw new Error("field was not provided"); }
-        this.#query = this.#query + ` WHERE NOT ${field}`
-        return new Operator(this.#query);
+        this.query = this.query + ` WHERE NOT ${field}`
+        return new Operator(this.query);
     }
     get WHERETRUE() {
-        this.#query = this.#query + " WHERE TRUE ";
-        return new Operator(this.#query);
+        this.query = this.query + " WHERE TRUE ";
+        return new Operator(this.query);
+    }
+}
+class OnStatement {
+    #query;
+    constructor(query) { this.#query = query; }
+    ON(field1, field2) {
+
+        if (!field1) { throw new Error("first field was not provided"); }
+        if (!field2) { throw new Error("secound field was not provided"); }
+
+        this.#query = this.#query + ` ON ${field1} = ${field2}`;
+        return new WhereStatements(this.#query);
+    }
+}
+class WhereWithJoins extends WhereStatements {
+    constructor(query) { super(query); }
+    INNERJOIN(tableName = null) {
+
+        if (!tableName) throw new Error("tableName was not provided");
+
+        this.query = this.query + ` INNER JOIN ${tableName}`;
+        return new OnStatement(this.query);
+    }
+    LEFTJOIN(tableName = null) {
+        if (!tableName) throw new Error("tableName was not provided");
+
+        this.query = this.query + ` LEFT JOIN ${tableName}`;
+        return new OnStatement(this.query);
+    }
+    RIGHTJOIN(tableName = null) {
+        if (!tableName) throw new Error("tableName was not provided");
+
+        this.query = this.query + ` RIGHT JOIN ${tableName}`;
+        return new OnStatement(this.query);
+    }
+    CROSSJOIN(tableName = null) {
+        if (!tableName) throw new Error("tableName was not provided");
+
+        this.query = this.query + ` CROSS JOIN ${tableName}`;
+        return new OnStatement(this.query);
     }
 }
 class From {
@@ -134,10 +174,15 @@ class From {
         //if (!query) throw new Error("query was not provided");
         this.#query = query + " FROM ";
     }
+    /**
+     * 
+     * @param {string} tableName 
+     * @returns WhereStatements
+     */
     FROM(tableName) {
         if (!tableName) { throw new Error("Table Name not provided"); }
         this.#query = this.#query + `${tableName}`;
-        return new WhereStatements(this.#query);
+        return new WhereWithJoins(this.#query);
     }
 }
 
@@ -157,10 +202,10 @@ function SELECTALL(...fields) {
 
 }
 
-function INSERT(tableName=null, ...fields) {
+function INSERT(tableName = null, ...fields) {
 
     if (fields.length < 1) { throw new Error("fields not provided"); }
-    if (!tableName) { throw new Error("tableName not provided"); }   
+    if (!tableName) { throw new Error("tableName not provided"); }
     this.query = `INSERT INTO ${tableName} (${fields.join(",")}) VALUES (${",?".repeat(fields.length).substring(1)})`;
     return this.query;
 }

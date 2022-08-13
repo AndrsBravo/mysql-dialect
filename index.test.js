@@ -15,8 +15,8 @@ describe("SELECT Statement", () => {
         expect(() => query.SELECT()).toThrow();
     });
     it("return FROM reference", () => { expect(() => query.SELECT("*")).toBeDefined() });
-    it("FROM Not Function's Param exception throw", () => { 
-        expect(() => query.SELECT("*").FROM()).toThrow(); 
+    it("FROM Not Function's Param exception throw", () => {
+        expect(() => query.SELECT("*").FROM()).toThrow();
     });
     it("Asterisk select all query return", () => { expect(query.SELECT("*").FROM("users").get()).toBe("SELECT * FROM users") });
     it("WHERE Not Function's Param exception throw", () => { () => expect(query.SELECT("*").FROM("users").WHERE()).toThrow() });
@@ -24,7 +24,7 @@ describe("SELECT Statement", () => {
         expect(query.SELECT("*").FROM("users").WHERETRUE.get()).toBe("SELECT * FROM users WHERE TRUE")
     });
     it("'WHERE NOT field = ?' equality statement", () => {
-        expect(()=>query.SELECT("*").FROM("users").WHERENOT()).toThrow();
+        expect(() => query.SELECT("*").FROM("users").WHERENOT()).toThrow();
         expect(query.SELECT("*").FROM("users").WHERENOT("name").equ.get()).toBe("SELECT * FROM users WHERE NOT name = ?")
     });
     it("'WHERE field = ?' equality statement", () => {
@@ -55,11 +55,11 @@ describe("SELECT Statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").NOTBETWEEN.get()).toBe("SELECT * FROM users WHERE name NOT BETWEEN ? AND ?")
     });
     it("'WHERE field IN ('name1', 'name2')' like operator statement", () => {
-        expect(()=>query.SELECT("*").FROM("users").WHERE("name").IN()).toThrow();
+        expect(() => query.SELECT("*").FROM("users").WHERE("name").IN()).toThrow();
         expect(query.SELECT("*").FROM("users").WHERE("name").IN("'name1'", "'name2'").get()).toBe("SELECT * FROM users WHERE name IN ('name1', 'name2')")
     });
     it("'WHERE field NOT IN ('name1', 'name2')' like operator statement", () => {
-        expect(()=>query.SELECT("*").FROM("users").WHERE("name").NOTIN()).toThrow();
+        expect(() => query.SELECT("*").FROM("users").WHERE("name").NOTIN()).toThrow();
         expect(query.SELECT("*").FROM("users").WHERE("name").NOTIN("'name1'", "'name2'").get()).toBe("SELECT * FROM users WHERE name NOT IN ('name1', 'name2')")
     });
 
@@ -97,7 +97,7 @@ describe("SELECT Statement", () => {
     });
 
     it("WHERE ALL, Not Function's Param exception throw", () => {
-        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ALL()).toThrow(); 
+        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ALL()).toThrow();
     });
 
     it("Return ALL reference", () => {
@@ -111,7 +111,7 @@ describe("SELECT Statement", () => {
     });
 
     it("WHERE ANY, Not Function's Param exception throw", () => {
-        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY()).toThrow();        
+        expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY()).toThrow();
         expect(() => query.SELECT("*").FROM("users").WHERE("name").equ.ANY()).toBeTruthy();
     });
 
@@ -142,11 +142,81 @@ describe("SELECT ALL Statement", () => {
     });
 });
 
+describe("SELECT Statements with JOIN", () => {
+
+    test("INNER JOIN, Not Function's Param exception throw'", () => {
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN()).toThrow();
+    });
+
+    test("Return INNERJOIN reference", () => {
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r")).toBeDefined();
+    });
+
+    test("INNER JOIN ON, Not Function's Param exception throw'", () => {
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid")).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON(null, "r.roleid")).toThrow();
+    });
+    test("return INNER JOIN ON reference", () => {
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid")).toBeDefined();
+    });
+    test("INNER JOIN Statement", () => {
+        const INNERJOIN = query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").get();
+        expect(INNERJOIN).toBe("SELECT u.user, r.role FROM users u INNER JOIN roles r ON u.roleid = r.roleid");
+    });
+
+    test("LEFT JOIN Statement", () => {
+
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN()).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN("roles r")).toBeDefined();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN("roles r").ON("u.roleid")).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN("roles r").ON(null, "r.roleid")).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN("roles r").ON("u.roleid", "r.roleid")).toBeDefined();
+        const LEFTJOIN = query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN("roles r").ON("u.roleid", "r.roleid").get();
+        expect(LEFTJOIN).toBe("SELECT u.user, r.role FROM users u LEFT JOIN roles r ON u.roleid = r.roleid");
+
+    });
+    test("'LEFT JOIN WHERE' Statement", () => {       
+        const LEFTJOIN = query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("u.roleid").equ.get();
+        expect(LEFTJOIN).toBe("SELECT u.user, r.role FROM users u LEFT JOIN roles r ON u.roleid = r.roleid WHERE u.roleid = ?");
+    });
+    
+    test("RIGHT JOIN Statement", () => {
+
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN()).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN("roles r")).toBeDefined();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN("roles r").ON("u.roleid")).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN("roles r").ON(null, "r.roleid")).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN("roles r").ON("u.roleid", "r.roleid")).toBeDefined();
+        const RIGHTJOIN = query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN("roles r").ON("u.roleid", "r.roleid").get();
+        expect(RIGHTJOIN).toBe("SELECT u.user, r.role FROM users u RIGHT JOIN roles r ON u.roleid = r.roleid");
+
+    });
+    test("'RIGHT JOIN WHERE' Statement", () => {       
+        const RIGHTJOIN = query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("u.roleid").equ.get();
+        expect(RIGHTJOIN).toBe("SELECT u.user, r.role FROM users u RIGHT JOIN roles r ON u.roleid = r.roleid WHERE u.roleid = ?");
+    });
+    test("CROSS JOIN Statement", () => {
+
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN()).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r")).toBeDefined();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r").ON("u.roleid")).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r").ON(null, "r.roleid")).toThrow();
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r").ON("u.roleid", "r.roleid")).toBeDefined();
+        const CROSSJOIN = query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r").ON("u.roleid", "r.roleid").get();
+        expect(CROSSJOIN).toBe("SELECT u.user, r.role FROM users u CROSS JOIN roles r ON u.roleid = r.roleid");
+    });
+    test("'CROSS JOIN WHERE' Statement", () => {       
+        const CROSSJOIN = query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("u.roleid").equ.get();
+        expect(CROSSJOIN).toBe("SELECT u.user, r.role FROM users u CROSS JOIN roles r ON u.roleid = r.roleid WHERE u.roleid = ?");
+    });
+
+});
+
 describe("INSERT Statement", () => {
     test("INSERT, Not Function's Param exception throw", () => {
         expect(() => query.INSERT()).toThrow()
         expect(() => query.INSERT("users")).toThrow()
-        expect(() => query.INSERT(null,"userName","email")).toThrow()
+        expect(() => query.INSERT(null, "userName", "email")).toThrow()
     });
     test("'INSERT INTO' Statement", () => {
         expect(query.INSERT("users", "userName", "email", "password")).toBe("INSERT INTO users (userName,email,password) VALUES (?,?,?)")
@@ -176,7 +246,7 @@ describe("DELETE Statement", () => {
 describe("UPDATE statement", () => {
     test("UPDATE, Not Function's Param exception throw", () => {
         expect(() => query.UPDATE()).toThrow()
-        expect(() => query.UPDATE(null,"unserName","email")).toThrow()
+        expect(() => query.UPDATE(null, "unserName", "email")).toThrow()
         expect(() => query.UPDATE("tableName")).toThrow()
     });
 
