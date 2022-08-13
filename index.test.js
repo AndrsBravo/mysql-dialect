@@ -175,11 +175,11 @@ describe("SELECT Statements with JOIN", () => {
         expect(LEFTJOIN).toBe("SELECT u.user, r.role FROM users u LEFT JOIN roles r ON u.roleid = r.roleid");
 
     });
-    test("'LEFT JOIN WHERE' Statement", () => {       
+    test("'LEFT JOIN WHERE' Statement", () => {
         const LEFTJOIN = query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("u.roleid").equ.get();
         expect(LEFTJOIN).toBe("SELECT u.user, r.role FROM users u LEFT JOIN roles r ON u.roleid = r.roleid WHERE u.roleid = ?");
     });
-    
+
     test("RIGHT JOIN Statement", () => {
 
         expect(() => query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN()).toThrow();
@@ -191,7 +191,7 @@ describe("SELECT Statements with JOIN", () => {
         expect(RIGHTJOIN).toBe("SELECT u.user, r.role FROM users u RIGHT JOIN roles r ON u.roleid = r.roleid");
 
     });
-    test("'RIGHT JOIN WHERE' Statement", () => {       
+    test("'RIGHT JOIN WHERE' Statement", () => {
         const RIGHTJOIN = query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("u.roleid").equ.get();
         expect(RIGHTJOIN).toBe("SELECT u.user, r.role FROM users u RIGHT JOIN roles r ON u.roleid = r.roleid WHERE u.roleid = ?");
     });
@@ -205,9 +205,43 @@ describe("SELECT Statements with JOIN", () => {
         const CROSSJOIN = query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r").ON("u.roleid", "r.roleid").get();
         expect(CROSSJOIN).toBe("SELECT u.user, r.role FROM users u CROSS JOIN roles r ON u.roleid = r.roleid");
     });
-    test("'CROSS JOIN WHERE' Statement", () => {       
+    test("'CROSS JOIN WHERE' Statement", () => {
         const CROSSJOIN = query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("u.roleid").equ.get();
         expect(CROSSJOIN).toBe("SELECT u.user, r.role FROM users u CROSS JOIN roles r ON u.roleid = r.roleid WHERE u.roleid = ?");
+    });
+
+});
+
+describe("ORDER BY Stament", () => {
+
+    test("ORDER BY, Not Function's Param exception throw'", () => {
+        expect(() => query.SELECT("name", "email").FROM("users").ORDERBY()).toThrow();
+    });
+    test("ORDER BY return a reference", () => {
+        expect(query.SELECT("name", "email").FROM("users").ORDERBY("name")).toBeDefined();
+    });
+    test("ORDER BY query statement", () => {
+
+        const qstring = query.SELECT("name", "email").FROM("users").ORDERBY("name").get();
+        const qstringasc = query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.get();
+        const qstringdesc = query.SELECT("name", "email").FROM("users").ORDERBY("name").DESC.get();
+        expect(qstring).toBe("SELECT name, email FROM users ORDER BY name");
+        expect(qstringasc).toBe("SELECT name, email FROM users ORDER BY name ASC");
+        expect(qstringdesc).toBe("SELECT name, email FROM users ORDER BY name DESC");
+
+    });
+    test("WHERE ORDER BY return a reference", () => {
+        expect(()=>query.SELECT("name", "email").FROM("users").WHERE("name").equ.ORDERBY()).toThrow();
+    });
+    test("'WHERE field = ? ORDER BY' query statement", () => {
+
+        const qstring = query.SELECT("name", "email").FROM("users").WHERE("name").equ.ORDERBY("name").get();
+        const qstringasc = query.SELECT("name", "email").FROM("users").WHERE("name").equ.ORDERBY("name").ASC.get();
+        const qstringdesc = query.SELECT("name", "email").FROM("users").WHERE("name").equ.ORDERBY("name").DESC.get();
+        expect(qstring).toBe("SELECT name, email FROM users WHERE name = ? ORDER BY name");
+        expect(qstringasc).toBe("SELECT name, email FROM users WHERE name = ? ORDER BY name ASC");
+        expect(qstringdesc).toBe("SELECT name, email FROM users WHERE name = ? ORDER BY name DESC");
+
     });
 
 });

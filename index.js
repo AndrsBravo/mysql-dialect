@@ -1,7 +1,8 @@
 
 class OperatorCombiner {
     #query;
-    constructor(query) { this.#query = query; }
+    constructor(query) { this.#query = query; }    
+    get() { return this.#query.trim(); }
     AND(condition = null) {
 
         if (!condition) throw new Error("Not condition provided");
@@ -36,7 +37,6 @@ class OperatorCombiner {
 
         return this;
     }
-
     ALL(sub_query) {
 
         if (!sub_query) { throw new Error("Not sub query provided"); }
@@ -46,7 +46,11 @@ class OperatorCombiner {
         this.#query = this.#query.substring(0, this.#query.length - 1) + `ALL (${sub_query})`;
         return this;
     }
-    get() { return this.#query.trim(); }
+    ORDERBY(field) {
+        if (!field) { throw new Error("field was not provided"); }
+        this.#query = this.#query + ` ORDER BY ${field}`;
+        return new Order(this.#query);
+    }
 }
 class Operator {
     #query;
@@ -109,6 +113,24 @@ class Operator {
     }
 
 }
+class Defaults {
+    #query;
+    constructor(query) { this.#query = query; }
+    get() { return this.#query.trim(); }
+}
+class Order {
+    #query;
+    constructor(query) { this.#query = query; }
+    get ASC() {
+        this.#query = this.#query + " ASC";
+        return new Defaults(this.#query);
+    }
+    get DESC() {
+        this.#query = this.#query + " DESC";
+        return new Defaults(this.#query);
+    }
+    get() { return this.#query.trim(); }
+}
 class WhereStatements {
     query;
     constructor(query) { this.query = query; }
@@ -126,6 +148,11 @@ class WhereStatements {
     get WHERETRUE() {
         this.query = this.query + " WHERE TRUE ";
         return new Operator(this.query);
+    }
+    ORDERBY(field) {
+        if (!field) { throw new Error("field was not provided"); }
+        this.query = this.query + ` ORDER BY ${field}`;
+        return new Order(this.query);
     }
 }
 class OnStatement {
