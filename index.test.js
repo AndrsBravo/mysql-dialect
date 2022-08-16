@@ -212,7 +212,56 @@ describe("SELECT Statements with JOIN", () => {
 
 });
 
-describe("ORDER BY Stament", () => {
+describe("GROUP BY Clause and Aggregation Function", () => {
+
+    test("SELECT + aggregation, Not Function's Param exception throw", () => {
+        expect(() => query.SELECT("price").AVG()).toThrow();
+        expect(() => query.SELECT("price").SUM(null, "")).toThrow();
+        expect(() => query.SELECT("price").COUNT()).toThrow();
+        expect(() => query.SELECT("price").MAX()).toThrow();
+        expect(() => query.SELECT("price").MIN()).toThrow();
+        expect(() => query.SELECT("price").STDEV()).toThrow();
+    });
+    test('SELECT, return aggregation function reference', () => {
+        expect(query.SELECT("price").AVG("price")).toBeDefined();
+        expect(query.SELECT("price").SUM("price")).toBeDefined();
+        expect(query.SELECT("price").COUNT("price")).toBeDefined();
+        expect(query.SELECT("price").MAX("price")).toBeDefined();
+        expect(query.SELECT("price").MIN("price")).toBeDefined();
+        expect(query.SELECT("price").STDEV("price")).toBeDefined();
+    });
+    test('SELECT + aggregation AVG,SUM,COUNT,MAX,MIN,STDEV', () => {
+        expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice")
+        expect(query.SELECT("price", "quantity").SUM("price", "total").FROM("invoice").get()).toBe("SELECT price, quantity SUM(price) AS total FROM invoice")
+        expect(query.SELECT("price", "quantity").COUNT("price", "total").FROM("invoice").get()).toBe("SELECT price, quantity COUNT(price) AS total FROM invoice")
+        expect(query.SELECT("price", "quantity").MAX("price", "total").FROM("invoice").get()).toBe("SELECT price, quantity MAX(price) AS total FROM invoice")
+        expect(query.SELECT("price", "quantity").MIN("price", "total").FROM("invoice").get()).toBe("SELECT price, quantity MIN(price) AS total FROM invoice")
+        expect(query.SELECT("price", "quantity").STDEV("price", "total").FROM("invoice").get()).toBe("SELECT price, quantity STDEV(price) AS total FROM invoice")
+    });
+
+    test("SELECT + aggregation GROUPBY, Not Function's Param exception throw", () => {
+        expect(() => query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY()).toThrow();
+    });
+    test('SELECT + aggregation, return GROUPBY  function reference', () => {
+        expect(query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("date")).toBeDefined();
+    });
+    test("'SELECT + aggregation GROUP BY Clause'", () => {
+        expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price");
+    });
+
+    test("SELECT + aggregation WEHERE + GROUPBY , Not Function's Param exception throw", () => {
+        expect(() => query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").gthn.GROUPBY()).toThrow();
+    });
+    test('SELECT + aggregation WEHERE, return GROUPBY  function reference', () => {
+        expect(query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").gthn.GROUPBY("date")).toBeDefined();
+    });
+    test("'SELECT + aggregation WEHERE + GROUPBY Clause'", () => {
+        expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").gthn.GROUPBY("price").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice WHERE price > ? GROUP BY price");
+    });
+
+});
+
+describe("ORDER BY Clause", () => {
 
     test("ORDER BY, Not Function's Param exception throw'", () => {
         expect(() => query.SELECT("name", "email").FROM("users").ORDERBY()).toThrow();
@@ -231,7 +280,7 @@ describe("ORDER BY Stament", () => {
 
     });
     test("WHERE ORDER BY return a reference", () => {
-        expect(()=>query.SELECT("name", "email").FROM("users").WHERE("name").equ.ORDERBY()).toThrow();
+        expect(() => query.SELECT("name", "email").FROM("users").WHERE("name").equ.ORDERBY()).toThrow();
     });
     test("'WHERE field = ? ORDER BY' query statement", () => {
 

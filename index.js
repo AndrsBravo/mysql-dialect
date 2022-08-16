@@ -1,7 +1,7 @@
 
 class OperatorCombiner {
     #query;
-    constructor(query) { this.#query = query; }    
+    constructor(query) { this.#query = query; }
     get() { return this.#query.trim(); }
     AND(condition = null) {
 
@@ -49,6 +49,11 @@ class OperatorCombiner {
     ORDERBY(field) {
         if (!field) { throw new Error("field was not provided"); }
         this.#query = this.#query + ` ORDER BY ${field}`;
+        return new Order(this.#query);
+    }
+    GROUPBY(field) {
+        if (!field) { throw new Error("field was not provided"); }
+        this.#query = this.#query + ` GROUP BY ${field}`;
         return new Order(this.#query);
     }
 }
@@ -148,6 +153,11 @@ class WhereStatements {
     get WHERETRUE() {
         this.query = this.query + " WHERE TRUE ";
         return new Operator(this.query);
+    }    
+    GROUPBY(field) {
+        if (!field) { throw new Error("field was not provided"); }
+        this.query = this.query + ` GROUP BY ${field}`;
+        return new Order(this.query);
     }
     ORDERBY(field) {
         if (!field) { throw new Error("field was not provided"); }
@@ -196,10 +206,9 @@ class WhereWithJoins extends WhereStatements {
     }
 }
 class From {
-    #query;
+    query;
     constructor(query) {
-        //if (!query) throw new Error("query was not provided");
-        this.#query = query + " FROM ";
+        this.query = query;
     }
     /**
      * 
@@ -208,16 +217,75 @@ class From {
      */
     FROM(tableName) {
         if (!tableName) { throw new Error("Table Name not provided"); }
-        this.#query = this.#query + `${tableName}`;
-        return new WhereWithJoins(this.#query);
+        this.query = this.query + ` FROM ${tableName}`;
+        return new WhereWithJoins(this.query);
     }
+}
+
+class FromWithAggregation extends From {
+    constructor(query) { super(query); }
+
+    SUM(field, alias) {
+
+        if (!field) throw new Error("field was not provided");
+
+        this.query = this.query + ` SUM(${field}) AS ${alias}`;
+
+        return new From(this.query);
+
+    }
+    AVG(field, alias) {
+
+        if (!field) throw new Error("field was not provided");
+
+        this.query = this.query + ` AVG(${field}) AS ${alias}`;
+
+        return new From(this.query);
+
+    }
+    COUNT(field, alias) {
+
+        if (!field) throw new Error("field was not provided");
+
+        this.query = this.query + ` COUNT(${field}) AS ${alias}`;
+
+        return new From(this.query);
+
+    }
+    MAX(field, alias) {
+
+        if (!field) throw new Error("field was not provided");
+
+        this.query = this.query + ` MAX(${field}) AS ${alias}`;
+
+        return new From(this.query);
+
+    }
+    MIN(field, alias) {
+
+        if (!field) throw new Error("field was not provided");
+
+        this.query = this.query + ` MIN(${field}) AS ${alias}`;
+
+        return new From(this.query);
+
+    }
+    STDEV(field, alias) {
+        if (!field) throw new Error("field was not provided");
+
+        this.query = this.query + ` STDEV(${field}) AS ${alias}`;
+
+        return new From(this.query);
+    }
+
 }
 
 function SELECT(...fields) {
 
     if (fields.length < 1) { throw new Error("not fields provided"); }
     this.query = `SELECT ${fields.join(", ")}`;
-    return new From(this.query);
+    return new FromWithAggregation(this.query)
+
 
 }
 
@@ -225,7 +293,7 @@ function SELECTALL(...fields) {
 
     if (fields.length < 1) { throw new Error("not fields provided"); }
     this.query = `SELECT ALL ${fields.join(", ")}`;
-    return new From(this.query);
+    return new FromWithAggregation(this.query);
 
 }
 
