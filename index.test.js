@@ -261,6 +261,19 @@ describe("GROUP BY Clause and Aggregation Function", () => {
 
 });
 
+describe("HAVING Clause", () => {
+
+    test("HAVING, Not Function's Param exception throw", () => {
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING()).toThrow()
+    });
+    test("HAVING, return valid reference", () => {
+        expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10")).toBeDefined()
+    });
+    test("HAVING, return valid reference", () => {
+        expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price HAVING price > 10")
+    });
+});
+
 describe("ORDER BY Clause", () => {
 
     test("ORDER BY, Not Function's Param exception throw'", () => {

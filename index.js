@@ -45,15 +45,15 @@ class OperatorCombiner {
 
         this.#query = this.#query.substring(0, this.#query.length - 1) + `ALL (${sub_query})`;
         return this;
+    }    
+    GROUPBY(field) {
+        if (!field) { throw new Error("field was not provided"); }
+        this.#query = this.#query + ` GROUP BY ${field}`;        
+        return new Order(this.#query);
     }
     ORDERBY(field) {
         if (!field) { throw new Error("field was not provided"); }
         this.#query = this.#query + ` ORDER BY ${field}`;
-        return new Order(this.#query);
-    }
-    GROUPBY(field) {
-        if (!field) { throw new Error("field was not provided"); }
-        this.#query = this.#query + ` GROUP BY ${field}`;
         return new Order(this.#query);
     }
 }
@@ -119,9 +119,9 @@ class Operator {
 
 }
 class Defaults {
-    #query;
-    constructor(query) { this.#query = query; }
-    get() { return this.#query.trim(); }
+    query;
+    constructor(query) { this.query = query; }
+    get() { return this.query.trim(); }
 }
 class Order {
     #query;
@@ -135,6 +135,16 @@ class Order {
         return new Defaults(this.#query);
     }
     get() { return this.#query.trim(); }
+}
+class AfterGroup extends Defaults{
+  
+    constructor(query) { super(query) ; }
+    HAVING(expression) {
+        if (!expression) { throw new Error("expression was not provided"); }
+        this.query = this.query + ` HAVING ${expression}`;
+        return new Defaults(this.query);
+    }
+
 }
 class WhereStatements {
     query;
@@ -157,7 +167,7 @@ class WhereStatements {
     GROUPBY(field) {
         if (!field) { throw new Error("field was not provided"); }
         this.query = this.query + ` GROUP BY ${field}`;
-        return new Order(this.query);
+        return new AfterGroup(this.query);
     }
     ORDERBY(field) {
         if (!field) { throw new Error("field was not provided"); }
