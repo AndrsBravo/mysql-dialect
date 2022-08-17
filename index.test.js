@@ -249,16 +249,16 @@ describe("GROUP BY Clause and Aggregation Function", () => {
         expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price");
     });
 
-    test("SELECT + aggregation WEHERE + GROUPBY , Not Function's Param exception throw", () => {
-        expect(() => query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").gthn.GROUPBY()).toThrow();
-    });
-    test('SELECT + aggregation WEHERE, return GROUPBY  function reference', () => {
-        expect(query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").gthn.GROUPBY("date")).toBeDefined();
-    });
-    test("'SELECT + aggregation WEHERE + GROUPBY Clause'", () => {
-        expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").gthn.GROUPBY("price").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice WHERE price > ? GROUP BY price");
-    });
-
+    /*  test("SELECT + aggregation WEHERE + GROUPBY , Not Function's Param exception throw", () => {
+          expect(() => query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").gthn.GROUPBY()).toThrow();
+      });
+      test('SELECT + aggregation WEHERE, return GROUPBY  function reference', () => {
+          expect(query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").gthn.GROUPBY("date")).toBeDefined();
+      });
+      test("'SELECT + aggregation WEHERE + GROUPBY Clause'", () => {
+          expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").gthn.GROUPBY("price").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice WHERE price > ? GROUP BY price");
+      });
+  */
 });
 
 describe("HAVING Clause", () => {
@@ -272,6 +272,9 @@ describe("HAVING Clause", () => {
     test("HAVING, return valid reference", () => {
         expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price HAVING price > 10")
     });
+    /* test("HAVING WITH ROLLUP, return valid reference", () => {
+          expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").WITHROLLUP.get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price HAVING price > 10 WITH ROLLUP")
+      });*/
 });
 
 describe("ORDER BY Clause", () => {
@@ -303,6 +306,34 @@ describe("ORDER BY Clause", () => {
         expect(qstring).toBe("SELECT name, email FROM users WHERE name = ? ORDER BY name");
         expect(qstringasc).toBe("SELECT name, email FROM users WHERE name = ? ORDER BY name ASC");
         expect(qstringdesc).toBe("SELECT name, email FROM users WHERE name = ? ORDER BY name DESC");
+
+    });
+    test("'SELECT Aggregation() GROUP BY expression ORDER BY expression'", () => {
+
+        const qstring = query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").ORDERBY("price").get();
+        expect(qstring).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price ORDER BY price");
+
+    });
+    test("'SELECT Aggregation() GROUP BY expression ORDER BY expression'", () => {
+
+        const qstring = query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").ORDERBY("price").get();
+        expect(qstring).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price ORDER BY price");
+
+    });
+    test("GROUP BY + ORDER BY, Not Function's Param exception throw'", () => {
+
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").ORDERBY()).toThrow();
+
+    });
+    test("HAVING + ORDER BY, Not Function's Param exception throw'", () => {
+
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").ORDERBY()).toThrow();
+
+    });
+    test("'SELECT Aggregation() FROM table GROUP BY expression HAVING expression ORDER BY expression'", () => {
+
+        const qstring = query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").ORDERBY("price").get();
+        expect(qstring).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price HAVING price > 10 ORDER BY price");
 
     });
 
