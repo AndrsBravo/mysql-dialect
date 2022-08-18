@@ -1,4 +1,3 @@
-
 class OperatorCombiner {
     #query;
     constructor(query) { this.#query = query; }
@@ -50,6 +49,17 @@ class OperatorCombiner {
         if (!field) { throw new Error("field was not provided"); }
         this.#query = this.#query + ` ORDER BY ${field}`;
         return new Order(this.#query);
+    }
+    LIMIT(row_count = 1, offset = 0) {
+
+        if (isNaN(row_count) || isNaN(offset)) throw new Error("Row Count and Offset have to be a Number");
+        if (row_count < 1) throw new Error("Row Count can't be lower than 1");
+        if (offset < 0) throw new Error("Offset can't be lower than 0");
+
+        this.#query = this.#query + ` LIMIT ${offset},${row_count}`;
+
+        return new Defaults(this.#query);
+
     }
 }
 class Operator {
@@ -118,30 +128,67 @@ class Defaults {
     constructor(query) { this.query = query; }
     get() { return this.query.trim(); }
 }
+class Limit extends Defaults {
+
+    constructor(query) { super(query); }
+    LIMIT(row_count = 1, offset = 0) {
+
+        if (isNaN(row_count) || isNaN(offset)) throw new Error("Row Count and Offset have to be a Number");
+        if (row_count < 1) throw new Error("Row Count can't be lower than 1");
+        if (offset < 0) throw new Error("Offset can't be lower than 0");
+
+        this.query = this.query + ` LIMIT ${offset},${row_count}`;
+
+        return new Defaults(this.query);
+
+    }
+}
 class Order {
     #query;
     constructor(query) { this.#query = query; }
     get ASC() {
         this.#query = this.#query + " ASC";
-        return new Defaults(this.#query);
+        return new Limit(this.#query);
     }
     get DESC() {
         this.#query = this.#query + " DESC";
-        return new Defaults(this.#query);
+        return new Limit(this.#query);
     }
     get() { return this.#query.trim(); }
+    LIMIT(row_count = 1, offset = 0) {
+
+        if (isNaN(row_count) || isNaN(offset)) throw new Error("Row Count and Offset have to be a Number");
+        if (row_count < 1) throw new Error("Row Count can't be lower than 1");
+        if (offset < 0) throw new Error("Offset can't be lower than 0");
+
+        this.#query = this.#query + ` LIMIT ${offset},${row_count}`;
+
+        return new Defaults(this.#query);
+
+    }
 }
-class Having extends Defaults{
-    constructor(query) { super(query) ; }
+class Having extends Defaults {
+    constructor(query) { super(query); }
     ORDERBY(field) {
         if (!field) { throw new Error("field was not provided"); }
         this.query = this.query + ` ORDER BY ${field}`;
         return new Order(this.query);
     }
+    LIMIT(row_count = 1, offset = 0) {
+
+        if (isNaN(row_count) || isNaN(offset)) throw new Error("Row Count and Offset have to be a Number");
+        if (row_count < 1) throw new Error("Row Count can't be lower than 1");
+        if (offset < 0) throw new Error("Offset can't be lower than 0");
+
+        this.query = this.query + ` LIMIT ${offset},${row_count}`;
+
+        return new Defaults(this.query);
+
+    }
 }
-class Group extends Defaults{
-  
-    constructor(query) { super(query) ; }
+class Group extends Defaults {
+
+    constructor(query) { super(query); }
     HAVING(expression) {
         if (!expression) { throw new Error("expression was not provided"); }
         this.query = this.query + ` HAVING ${expression}`;
@@ -151,6 +198,17 @@ class Group extends Defaults{
         if (!field) { throw new Error("field was not provided"); }
         this.query = this.query + ` ORDER BY ${field}`;
         return new Order(this.query);
+    }
+    LIMIT(row_count = 1, offset = 0) {
+
+        if (isNaN(row_count) || isNaN(offset)) throw new Error("Row Count and Offset have to be a Number");
+        if (row_count < 1) throw new Error("Row Count can't be lower than 1");
+        if (offset < 0) throw new Error("Offset can't be lower than 0");
+
+        this.query = this.query + ` LIMIT ${offset},${row_count}`;
+
+        return new Defaults(this.query);
+
     }
 
 }
@@ -171,7 +229,7 @@ class WhereStatements {
     get WHERETRUE() {
         this.query = this.query + " WHERE TRUE ";
         return new Operator(this.query);
-    }    
+    }
     GROUPBY(field) {
         if (!field) { throw new Error("field was not provided"); }
         this.query = this.query + ` GROUP BY ${field}`;
@@ -181,6 +239,17 @@ class WhereStatements {
         if (!field) { throw new Error("field was not provided"); }
         this.query = this.query + ` ORDER BY ${field}`;
         return new Order(this.query);
+    }
+    LIMIT(row_count = 1, offset = 0) {
+
+        if (isNaN(row_count) || isNaN(offset)) throw new Error("Row Count and Offset have to be a Number");
+        if (row_count < 1) throw new Error("Row Count can't be lower than 1");
+        if (offset < 0) throw new Error("Offset can't be lower than 0");
+
+        this.query = this.query + ` LIMIT ${offset},${row_count}`;
+
+        return new Defaults(this.query);
+
     }
 }
 class OnStatement {

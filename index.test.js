@@ -339,6 +339,103 @@ describe("ORDER BY Clause", () => {
 
 });
 
+describe("LIMIT Clause", () => {
+
+    test("LIMIT, Not negative param allow exception throw", () => {
+
+        expect(() => query.SELECT("*").FROM("users").LIMIT(-1, 1)).toThrow()
+        expect(() => query.SELECT("*").FROM("users").LIMIT("a", 1)).toThrow()
+        expect(() => query.SELECT("*").FROM("users").LIMIT(1, -1)).toThrow()
+        expect(() => query.SELECT("*").FROM("users").LIMIT(1, "a")).toThrow()
+
+        expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").LIMIT(-1, 1)).toThrow()
+        expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").LIMIT("a", 1)).toThrow()
+        expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").LIMIT(1, -1)).toThrow()
+        expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").LIMIT(1, "a")).toThrow()
+     
+        expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.LIMIT(-1, 1)).toThrow()
+        expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.LIMIT("a", 1)).toThrow()
+        expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.LIMIT(1, -1)).toThrow()
+        expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.LIMIT(1, "a")).toThrow()
+     
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT(-1, 1)).toThrow()
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT("a", 1)).toThrow()
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT(1, -1)).toThrow()
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT(1, "a")).toThrow()
+
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").LIMIT(-1, 1)).toThrow()
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").LIMIT("a", 1)).toThrow()
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").LIMIT(1, -1)).toThrow()
+        expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").LIMIT(1, "a")).toThrow()
+
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").LIMIT(-1, 1)).toThrow()
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").LIMIT("a", 1)).toThrow()
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").LIMIT(1, -1)).toThrow()
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").LIMIT(1, "a")).toThrow()
+
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").LIMIT(-1, 1)).toThrow()
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").LIMIT("a", 1)).toThrow()
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").LIMIT(1, -1)).toThrow()
+        expect(() => query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").LIMIT(1, "a")).toThrow()
+
+
+    });
+
+    it("LIMIT After FROM Statement", () => { expect(query.SELECT("*").FROM("users").LIMIT().get()).toBe("SELECT * FROM users LIMIT 0,1") });
+    it("LIMIT After WHERE Statement", () => {
+        expect(query.SELECT("*").FROM("users").WHERE("name").equ.LIMIT().get()).toBe("SELECT * FROM users WHERE name = ? LIMIT 0,1")
+    });
+
+    test("LIMIT after ORDER BY query statement", () => {
+
+        const qstring = query.SELECT("name", "email").FROM("users").ORDERBY("name").LIMIT().get();
+        const qstringasc = query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.LIMIT().get();
+        const qstringdesc = query.SELECT("name", "email").FROM("users").ORDERBY("name").DESC.LIMIT().get();
+        expect(qstring).toBe("SELECT name, email FROM users ORDER BY name LIMIT 0,1");
+        expect(qstringasc).toBe("SELECT name, email FROM users ORDER BY name ASC LIMIT 0,1");
+        expect(qstringdesc).toBe("SELECT name, email FROM users ORDER BY name DESC LIMIT 0,1");
+
+    });
+
+    test("LIMIT after GROUP BY clause", () => {
+        const q = query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").LIMIT().get();
+        expect(q).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price LIMIT 0,1");
+    });
+
+    test("LIMIT after GROUP BY expression and HAVING  clause", () => {
+        const q = query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").HAVING("price > 10").LIMIT().get();
+        expect(q).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price HAVING price > 10 LIMIT 0,1");
+    });
+
+    test("LIMIT After JOINS Statement", () => {
+
+        const LIMITaINNJOIN = query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").LIMIT().get();
+        const LIMITaLFTJOIN = query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN("roles r").ON("u.roleid", "r.roleid").LIMIT().get();
+        const LIMITaRGTJOIN = query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN("roles r").ON("u.roleid", "r.roleid").LIMIT().get();
+        const LIMITaCSSJOIN = query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r").ON("u.roleid", "r.roleid").LIMIT().get();
+        expect(LIMITaINNJOIN).toBe("SELECT u.user, r.role FROM users u INNER JOIN roles r ON u.roleid = r.roleid LIMIT 0,1");
+        expect(LIMITaLFTJOIN).toBe("SELECT u.user, r.role FROM users u LEFT JOIN roles r ON u.roleid = r.roleid LIMIT 0,1");
+        expect(LIMITaRGTJOIN).toBe("SELECT u.user, r.role FROM users u RIGHT JOIN roles r ON u.roleid = r.roleid LIMIT 0,1");
+        expect(LIMITaCSSJOIN).toBe("SELECT u.user, r.role FROM users u CROSS JOIN roles r ON u.roleid = r.roleid LIMIT 0,1");
+
+    });
+
+    test("LIMIT After JOINS and WHERE Statement", () => {
+
+        const LIMITaINNJOINW = query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT().get();
+        const LIMITaLFTJOINW = query.SELECT("u.user", "r.role").FROM("users u").LEFTJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT().get();
+        const LIMITaRGTJOINW = query.SELECT("u.user", "r.role").FROM("users u").RIGHTJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT().get();
+        const LIMITaCSSJOINW = query.SELECT("u.user", "r.role").FROM("users u").CROSSJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT().get();
+        expect(LIMITaINNJOINW).toBe("SELECT u.user, r.role FROM users u INNER JOIN roles r ON u.roleid = r.roleid WHERE userid = ? LIMIT 0,1");
+        expect(LIMITaLFTJOINW).toBe("SELECT u.user, r.role FROM users u LEFT JOIN roles r ON u.roleid = r.roleid WHERE userid = ? LIMIT 0,1");
+        expect(LIMITaRGTJOINW).toBe("SELECT u.user, r.role FROM users u RIGHT JOIN roles r ON u.roleid = r.roleid WHERE userid = ? LIMIT 0,1");
+        expect(LIMITaCSSJOINW).toBe("SELECT u.user, r.role FROM users u CROSS JOIN roles r ON u.roleid = r.roleid WHERE userid = ? LIMIT 0,1");
+
+    });
+
+
+});
+
 describe("INSERT Statement", () => {
     test("INSERT, Not Function's Param exception throw", () => {
         expect(() => query.INSERT()).toThrow()
