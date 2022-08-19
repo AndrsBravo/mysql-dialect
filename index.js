@@ -396,7 +396,7 @@ function UPDATE(tableName, ...fields) {
     if (!tableName) throw new Error("tableName was not provided");
     if (fields.length < 1) throw new Error("fields were not provided");
     let flds = fields.map(field => `${field} = ?`);
-    this.query = `UPDATE ${tableName} SET (${flds.join(", ")})`;
+    this.query = `UPDATE ${tableName} SET ${flds.join(", ")}`;
 
     return new WhereStatements(this.query);
 }

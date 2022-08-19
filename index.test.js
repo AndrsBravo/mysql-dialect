@@ -482,8 +482,8 @@ describe("UPDATE statement", () => {
         expect(() => query.UPDATE("users", "email", "userName", "password").WHERE()).toThrow()
     });
 
-    test("'UPDATE table SET () WHERE condition', UPDATE Statement", () => {
+    test("'UPDATE table SET field = 'value' WHERE condition', UPDATE Statement", () => {
         expect(query.UPDATE("users", "email", "userName", "password").WHERE("userid").equ.get())
-            .toBe("UPDATE users SET (email = ?, userName = ?, password = ?) WHERE userid = ?")
+            .toBe("UPDATE users SET email = ?, userName = ?, password = ? WHERE userid = ?")
     });
 })
