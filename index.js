@@ -261,7 +261,7 @@ class OnStatement {
         if (!field2) { throw new Error("secound field was not provided"); }
 
         this.#query = this.#query + ` ON ${field1} = ${field2}`;
-        return new WhereStatements(this.#query);
+        return new WhereWithJoins(this.#query);
     }
 }
 class WhereWithJoins extends WhereStatements {
