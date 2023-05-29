@@ -50,6 +50,11 @@ class OperatorCombiner {
         this.#query = this.#query + ` ORDER BY ${field}`;
         return new Order(this.#query);
     }
+    GROUPBY(field) {
+        if (!field) { throw new Error("field was not provided"); }
+        this.#query = this.#query + ` GROUP BY ${field}`;
+        return new Group(this.#query);
+    }
     LIMIT(row_count = 1, offset = 0) {
 
         if (isNaN(row_count) || isNaN(offset)) throw new Error("Row Count and Offset have to be a Number");
