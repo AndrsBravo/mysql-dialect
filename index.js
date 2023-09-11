@@ -50,9 +50,9 @@ class OperatorCombiner {
         this.#query = this.#query + ` ORDER BY ${field}`;
         return new Order(this.#query);
     }
-    GROUPBY(field) {
-        if (!field) { throw new Error("field was not provided"); }
-        this.#query = this.#query + ` GROUP BY ${field}`;
+    GROUPBY(...fields) {
+        if (fields.length < 1) { throw new Error("fields was not provided"); }
+        this.#query = this.#query + ` GROUP BY ${fields.join(", ")}`;
         return new Group(this.#query);
     }
     LIMIT(row_count = 1, offset = 0) {
@@ -123,6 +123,12 @@ class Operator {
     get NOTBETWEEN() {
 
         this.#query = this.#query + ` NOT BETWEEN ? AND ?`;
+        return new OperatorCombiner(this.#query);
+
+    }
+    get ISNULL() {
+
+        this.#query = this.#query + ` IS NULL`;
         return new OperatorCombiner(this.#query);
 
     }
@@ -235,9 +241,9 @@ class WhereStatements {
         this.query = this.query + " WHERE TRUE ";
         return new Operator(this.query);
     }
-    GROUPBY(field) {
-        if (!field) { throw new Error("field was not provided"); }
-        this.query = this.query + ` GROUP BY ${field}`;
+    GROUPBY(...fields) {
+        if (fields.length < 1){ throw new Error("fields was not provided"); }
+        this.query = this.query + ` GROUP BY ${fields.join(", ")}`;
         return new Group(this.query);
     }
     ORDERBY(field) {

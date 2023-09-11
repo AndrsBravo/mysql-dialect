@@ -48,11 +48,14 @@ describe("SELECT Statement", () => {
     it("'WHERE field LIKE ?' like operator statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").LIKE.get()).toBe("SELECT * FROM users WHERE name LIKE ?")
     });
-    it("'WHERE field BETWEEN ? AND ?' like operator statement", () => {
+    it("'WHERE field BETWEEN ? AND ?' between and operator statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").BETWEEN.get()).toBe("SELECT * FROM users WHERE name BETWEEN ? AND ?")
     });
-    it("'WHERE field NOT BETWEEN ? AND ?' like operator statement", () => {
+    it("'WHERE field NOT BETWEEN ? AND ?' not between and operator statement", () => {
         expect(query.SELECT("*").FROM("users").WHERE("name").NOTBETWEEN.get()).toBe("SELECT * FROM users WHERE name NOT BETWEEN ? AND ?")
+    });
+    it("'WHERE field IS NULL' is null operator statement", () => {
+        expect(query.SELECT("*").FROM("users").WHERE("name").ISNULL.get()).toBe("SELECT * FROM users WHERE name IS NULL")
     });
     it("'WHERE field IN ('name1', 'name2')' like operator statement", () => {
         expect(() => query.SELECT("*").FROM("users").WHERE("name").IN()).toThrow();
@@ -242,11 +245,18 @@ describe("GROUP BY Clause and Aggregation Function", () => {
     test("SELECT + aggregation GROUPBY, Not Function's Param exception throw", () => {
         expect(() => query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY()).toThrow();
     });
+    test("SELECT + WHERE + aggregation GROUPBY, Not Function's Param exception throw", () => {
+        expect(() => query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").equ.GROUPBY()).toThrow();
+    });
     test('SELECT + aggregation, return GROUPBY  function reference', () => {
         expect(query.SELECT("date", "price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("date")).toBeDefined();
     });
     test("'SELECT + aggregation GROUP BY Clause'", () => {
         expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").GROUPBY("price").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice GROUP BY price");
+    });
+
+    test("'SELECT + WHERE aggregation GROUP BY Clause'", () => {
+        expect(query.SELECT("price", "quantity").AVG("price", "total").FROM("invoice").WHERE("price").equ.GROUPBY("price").get()).toBe("SELECT price, quantity AVG(price) AS total FROM invoice WHERE price = ? GROUP BY price");
     });
 
     /*  test("SELECT + aggregation WEHERE + GROUPBY , Not Function's Param exception throw", () => {
