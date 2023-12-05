@@ -1,7 +1,7 @@
 {
   "name": "mysql-dialect",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.5.0",
+  "description": "Provides a MySql Query Builder. This version contains MySql CRUD operations. Each function returns a query string ready to use with a MySql connection provider like MSQL2 Package.",
   "main": "index.js",
   "scripts": {
     "test": "jest --coverage"
@@ -10,9 +10,16 @@
     "type": "git",
     "url": "git+https://github.com/AndrsBravo/mysql-dialect.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "mysql",
+    "sql query",
+    "query builder",
+    "builder",
+    "nodejs",
+    "java scripts"
+  ],
+  "author": "Andres Bravo",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/AndrsBravo/mysql-dialect/issues"
   },
