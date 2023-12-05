@@ -242,7 +242,7 @@ class WhereStatements {
         return new Operator(this.query);
     }
     GROUPBY(...fields) {
-        if (fields.length < 1){ throw new Error("fields was not provided"); }
+        if (fields.length < 1) { throw new Error("fields was not provided"); }
         this.query = this.query + ` GROUP BY ${fields.join(", ")}`;
         return new Group(this.query);
     }
@@ -269,7 +269,7 @@ class OnStatement {
     ON(field1, field2) {
 
         if (!field1) { throw new Error("first field was not provided"); }
-        if (!field2) { throw new Error("secound field was not provided"); }
+        if (!field2) { throw new Error("second field was not provided"); }
 
         this.#query = this.#query + ` ON ${field1} = ${field2}`;
         return new WhereWithJoins(this.#query);
@@ -419,4 +419,4 @@ function DELETE(tableName) {
     return new From(this.query).FROM(tableName);
 }
 
-module.exports = { DELETE: DELETE, UPDATE, INSERT, SELECT, SELECTALL };
+module.exports = { DELETE, UPDATE, INSERT, SELECT, SELECTALL };

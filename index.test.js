@@ -362,12 +362,12 @@ describe("LIMIT Clause", () => {
         expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").LIMIT("a", 1)).toThrow()
         expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").LIMIT(1, -1)).toThrow()
         expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").LIMIT(1, "a")).toThrow()
-     
+
         expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.LIMIT(-1, 1)).toThrow()
         expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.LIMIT("a", 1)).toThrow()
         expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.LIMIT(1, -1)).toThrow()
         expect(() => query.SELECT("name", "email").FROM("users").ORDERBY("name").ASC.LIMIT(1, "a")).toThrow()
-     
+
         expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT(-1, 1)).toThrow()
         expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT("a", 1)).toThrow()
         expect(() => query.SELECT("u.user", "r.role").FROM("users u").INNERJOIN("roles r").ON("u.roleid", "r.roleid").WHERE("userid").equ.LIMIT(1, -1)).toThrow()
@@ -480,7 +480,7 @@ describe("DELETE Statement", () => {
 describe("UPDATE statement", () => {
     test("UPDATE, Not Function's Param exception throw", () => {
         expect(() => query.UPDATE()).toThrow()
-        expect(() => query.UPDATE(null, "unserName", "email")).toThrow()
+        expect(() => query.UPDATE(null, "userName", "email")).toThrow()
         expect(() => query.UPDATE("tableName")).toThrow()
     });
 
