@@ -453,7 +453,7 @@ describe("INSERT Statement", () => {
         expect(() => query.INSERT(null, "userName", "email")).toThrow()
     });
     test("'INSERT INTO' Statement", () => {
-        expect(query.INSERT("users", "userName", "email", "password")).toBe("INSERT INTO users (userName,email,password) VALUES (?,?,?)")
+        expect(query.INSERT("users", "userName", "email", "password")).toBe("INSERT INTO users (userName,email,password) VALUES(?,?,?)")
     });
 });
 
