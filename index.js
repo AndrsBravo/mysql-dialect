@@ -135,7 +135,10 @@ class Operator {
 
 }
 class Defaults {
+
+    /**@protected */
     _query;
+
     constructor(query) { this._query = query; }
     get() { return this._query.trim(); }
 }
@@ -224,6 +227,7 @@ class Group extends Defaults {
 
 }
 class WhereStatements {
+    /**@protected */
     _query;
     constructor(query) { this._query = query; }
     get() { return this._query.trim(); }
@@ -304,7 +308,10 @@ class WhereWithJoins extends WhereStatements {
     }
 }
 class From {
+
+    /** @protected */
     _query;
+
     constructor(query) {
         this._query = query;
     }
