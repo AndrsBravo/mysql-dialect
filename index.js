@@ -135,9 +135,9 @@ class Operator {
 
 }
 class Defaults {
-    query;
-    constructor(query) { this.query = query; }
-    get() { return this.query.trim(); }
+    _query;
+    constructor(query) { this._query = query; }
+    get() { return this._query.trim(); }
 }
 class Limit extends Defaults {
 
@@ -148,9 +148,9 @@ class Limit extends Defaults {
         if (row_count < 1) throw new Error("Row Count can't be lower than 1");
         if (offset < 0) throw new Error("Offset can't be lower than 0");
 
-        this.query = this.query + ` LIMIT ${offset},${row_count}`;
+        this._query = this._query + ` LIMIT ${offset},${row_count}`;
 
-        return new Defaults(this.query);
+        return new Defaults(this._query);
 
     }
 }
@@ -182,8 +182,8 @@ class Having extends Defaults {
     constructor(query) { super(query); }
     ORDERBY(field) {
         if (!field) { throw new Error("field was not provided"); }
-        this.query = this.query + ` ORDER BY ${field}`;
-        return new Order(this.query);
+        this._query = this._query + ` ORDER BY ${field}`;
+        return new Order(this._query);
     }
     LIMIT(row_count = 1, offset = 0) {
 
@@ -191,9 +191,9 @@ class Having extends Defaults {
         if (row_count < 1) throw new Error("Row Count can't be lower than 1");
         if (offset < 0) throw new Error("Offset can't be lower than 0");
 
-        this.query = this.query + ` LIMIT ${offset},${row_count}`;
+        this._query = this._query + ` LIMIT ${offset},${row_count}`;
 
-        return new Defaults(this.query);
+        return new Defaults(this._query);
 
     }
 }
@@ -202,13 +202,13 @@ class Group extends Defaults {
     constructor(query) { super(query); }
     HAVING(expression) {
         if (!expression) { throw new Error("expression was not provided"); }
-        this.query = this.query + ` HAVING ${expression}`;
-        return new Having(this.query);
+        this._query = this._query + ` HAVING ${expression}`;
+        return new Having(this._query);
     }
     ORDERBY(field) {
         if (!field) { throw new Error("field was not provided"); }
-        this.query = this.query + ` ORDER BY ${field}`;
-        return new Order(this.query);
+        this._query = this._query + ` ORDER BY ${field}`;
+        return new Order(this._query);
     }
     LIMIT(row_count = 1, offset = 0) {
 
@@ -216,40 +216,40 @@ class Group extends Defaults {
         if (row_count < 1) throw new Error("Row Count can't be lower than 1");
         if (offset < 0) throw new Error("Offset can't be lower than 0");
 
-        this.query = this.query + ` LIMIT ${offset},${row_count}`;
+        this._query = this._query + ` LIMIT ${offset},${row_count}`;
 
-        return new Defaults(this.query);
+        return new Defaults(this._query);
 
     }
 
 }
 class WhereStatements {
-    query;
-    constructor(query) { this.query = query; }
-    get() { return this.query.trim(); }
+    _query;
+    constructor(query) { this._query = query; }
+    get() { return this._query.trim(); }
     WHERE(field) {
         if (!field) { throw new Error("field was not provided"); }
-        this.query = this.query + ` WHERE ${field}`
-        return new Operator(this.query);
+        this._query = this._query + ` WHERE ${field}`
+        return new Operator(this._query);
     }
     WHERENOT(field) {
         if (!field) { throw new Error("field was not provided"); }
-        this.query = this.query + ` WHERE NOT ${field}`
-        return new Operator(this.query);
+        this._query = this._query + ` WHERE NOT ${field}`
+        return new Operator(this._query);
     }
     get WHERETRUE() {
-        this.query = this.query + " WHERE TRUE ";
-        return new Operator(this.query);
+        this._query = this._query + " WHERE TRUE ";
+        return new Operator(this._query);
     }
     GROUPBY(...fields) {
         if (fields.length < 1) { throw new Error("fields was not provided"); }
-        this.query = this.query + ` GROUP BY ${fields.join(", ")}`;
-        return new Group(this.query);
+        this._query = this._query + ` GROUP BY ${fields.join(", ")}`;
+        return new Group(this._query);
     }
     ORDERBY(field) {
         if (!field) { throw new Error("field was not provided"); }
-        this.query = this.query + ` ORDER BY ${field}`;
-        return new Order(this.query);
+        this._query = this._query + ` ORDER BY ${field}`;
+        return new Order(this._query);
     }
     LIMIT(row_count = 1, offset = 0) {
 
@@ -257,9 +257,9 @@ class WhereStatements {
         if (row_count < 1) throw new Error("Row Count can't be lower than 1");
         if (offset < 0) throw new Error("Offset can't be lower than 0");
 
-        this.query = this.query + ` LIMIT ${offset},${row_count}`;
+        this._query = this._query + ` LIMIT ${offset},${row_count}`;
 
-        return new Defaults(this.query);
+        return new Defaults(this._query);
 
     }
 }
@@ -281,32 +281,32 @@ class WhereWithJoins extends WhereStatements {
 
         if (!tableName) throw new Error("tableName was not provided");
 
-        this.query = this.query + ` INNER JOIN ${tableName}`;
-        return new OnStatement(this.query);
+        this._query = this._query + ` INNER JOIN ${tableName}`;
+        return new OnStatement(this._query);
     }
     LEFTJOIN(tableName = null) {
         if (!tableName) throw new Error("tableName was not provided");
 
-        this.query = this.query + ` LEFT JOIN ${tableName}`;
-        return new OnStatement(this.query);
+        this._query = this._query + ` LEFT JOIN ${tableName}`;
+        return new OnStatement(this._query);
     }
     RIGHTJOIN(tableName = null) {
         if (!tableName) throw new Error("tableName was not provided");
 
-        this.query = this.query + ` RIGHT JOIN ${tableName}`;
-        return new OnStatement(this.query);
+        this._query = this._query + ` RIGHT JOIN ${tableName}`;
+        return new OnStatement(this._query);
     }
     CROSSJOIN(tableName = null) {
         if (!tableName) throw new Error("tableName was not provided");
 
-        this.query = this.query + ` CROSS JOIN ${tableName}`;
-        return new OnStatement(this.query);
+        this._query = this._query + ` CROSS JOIN ${tableName}`;
+        return new OnStatement(this._query);
     }
 }
 class From {
-    query;
+    _query;
     constructor(query) {
-        this.query = query;
+        this._query = query;
     }
     /**
      * 
@@ -315,8 +315,8 @@ class From {
      */
     FROM(tableName) {
         if (!tableName) { throw new Error("Table Name not provided"); }
-        this.query = this.query + ` FROM ${tableName}`;
-        return new WhereWithJoins(this.query);
+        this._query = this._query + ` FROM ${tableName}`;
+        return new WhereWithJoins(this._query);
     }
 }
 
@@ -327,53 +327,53 @@ class FromWithAggregation extends From {
 
         if (!field) throw new Error("field was not provided");
 
-        this.query = this.query + ` SUM(${field}) AS ${alias}`;
+        this._query = this._query + ` SUM(${field}) AS ${alias}`;
 
-        return new From(this.query);
+        return new From(this._query);
 
     }
     AVG(field, alias) {
 
         if (!field) throw new Error("field was not provided");
 
-        this.query = this.query + ` AVG(${field}) AS ${alias}`;
+        this._query = this._query + ` AVG(${field}) AS ${alias}`;
 
-        return new From(this.query);
+        return new From(this._query);
 
     }
     COUNT(field, alias) {
 
         if (!field) throw new Error("field was not provided");
 
-        this.query = this.query + ` COUNT(${field}) AS ${alias}`;
+        this._query = this._query + ` COUNT(${field}) AS ${alias}`;
 
-        return new From(this.query);
+        return new From(this._query);
 
     }
     MAX(field, alias) {
 
         if (!field) throw new Error("field was not provided");
 
-        this.query = this.query + ` MAX(${field}) AS ${alias}`;
+        this._query = this._query + ` MAX(${field}) AS ${alias}`;
 
-        return new From(this.query);
+        return new From(this._query);
 
     }
     MIN(field, alias) {
 
         if (!field) throw new Error("field was not provided");
 
-        this.query = this.query + ` MIN(${field}) AS ${alias}`;
+        this._query = this._query + ` MIN(${field}) AS ${alias}`;
 
-        return new From(this.query);
+        return new From(this._query);
 
     }
     STDEV(field, alias) {
         if (!field) throw new Error("field was not provided");
 
-        this.query = this.query + ` STDEV(${field}) AS ${alias}`;
+        this._query = this._query + ` STDEV(${field}) AS ${alias}`;
 
-        return new From(this.query);
+        return new From(this._query);
     }
 
 }
