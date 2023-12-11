@@ -1,0 +1,7 @@
+
+#Part ignore for a lighter package 
+
+.github
+
+
+index.test.js
