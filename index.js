@@ -399,7 +399,7 @@ function INSERT(tableName = null, ...fields) {
 
     if (fields.length < 1) { throw new Error("fields not provided"); }
     if (!tableName) { throw new Error("tableName not provided"); }
-    this.query = `INSERT INTO ${tableName} (${fields.join(",")}) VALUES (${",?".repeat(fields.length).substring(1)})`;
+    this.query = `INSERT INTO ${tableName} (${fields.join(",")}) VALUES(${",?".repeat(fields.length).substring(1)})`;
     return this.query;
 }
 
